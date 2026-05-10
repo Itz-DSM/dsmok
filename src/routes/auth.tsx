@@ -2,7 +2,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
-import { lovable } from "@/integrations/lovable/index";
+
 import { useAuth } from "@/lib/auth-context";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -42,7 +42,8 @@ function AuthPage() {
           },
         });
         if (error) throw error;
-        toast.success("Welcome to Dsmok!");
+        toast.success("Check your email to verify your account before signing in.");
+        setMode("signin");
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
@@ -52,18 +53,6 @@ function AuthPage() {
     } finally {
       setBusy(false);
     }
-  };
-
-  const google = async () => {
-    setBusy(true);
-    const result = await lovable.auth.signInWithOAuth("google", { redirect_uri: window.location.origin });
-    if (result.error) {
-      toast.error("Google sign-in failed");
-      setBusy(false);
-      return;
-    }
-    if (result.redirected) return;
-    navigate({ to: "/" });
   };
 
   return (
@@ -110,13 +99,11 @@ function AuthPage() {
             </Button>
           </form>
 
-          <div className="my-4 flex items-center gap-3 text-xs text-muted-foreground">
-            <div className="h-px flex-1 bg-border" /> or <div className="h-px flex-1 bg-border" />
-          </div>
-
-          <Button variant="outline" onClick={google} disabled={busy} className="w-full">
-            Continue with Google
-          </Button>
+          <p className="mt-4 text-center text-xs text-muted-foreground">
+            {mode === "signup"
+              ? "We'll email you a verification link. You must verify before signing in."
+              : "New here? Create an account to get full access to Dsmok."}
+          </p>
         </div>
       </div>
     </div>

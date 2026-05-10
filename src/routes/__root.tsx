@@ -10,8 +10,9 @@ import {
 } from "@tanstack/react-router";
 import { Toaster } from "sonner";
 import appCss from "../styles.css?url";
-import { AuthProvider } from "@/lib/auth-context";
+import { AuthProvider, useAuth } from "@/lib/auth-context";
 import { BottomNav } from "@/components/BottomNav";
+import { useEffect } from "react";
 
 function NotFoundComponent() {
   return (
@@ -84,11 +85,26 @@ function RootShell({ children }: { children: React.ReactNode }) {
 
 function Layout() {
   const { pathname } = useLocation();
+  const router = useRouter();
+  const { session, loading } = useAuth();
   const hideNav = pathname === "/auth";
+
+  useEffect(() => {
+    if (!loading && !session && pathname !== "/auth") {
+      router.navigate({ to: "/auth" });
+    }
+  }, [loading, session, pathname, router]);
+
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <Outlet />
-      {!hideNav && <BottomNav />}
+      {loading ? (
+        <div className="flex min-h-screen items-center justify-center text-muted-foreground">Loading…</div>
+      ) : !session && pathname !== "/auth" ? (
+        <div className="flex min-h-screen items-center justify-center text-muted-foreground">Redirecting…</div>
+      ) : (
+        <Outlet />
+      )}
+      {!hideNav && session && <BottomNav />}
       <Toaster theme="dark" position="top-center" richColors />
     </div>
   );
