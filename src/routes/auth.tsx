@@ -99,13 +99,11 @@ function AuthPage() {
             </Button>
           </form>
 
-          <div className="my-4 flex items-center gap-3 text-xs text-muted-foreground">
-            <div className="h-px flex-1 bg-border" /> or <div className="h-px flex-1 bg-border" />
-          </div>
-
-          <Button variant="outline" onClick={google} disabled={busy} className="w-full">
-            Continue with Google
-          </Button>
+          <p className="mt-4 text-center text-xs text-muted-foreground">
+            {mode === "signup"
+              ? "We'll email you a verification link. You must verify before signing in."
+              : "New here? Create an account to get full access to Dsmok."}
+          </p>
         </div>
       </div>
     </div>
