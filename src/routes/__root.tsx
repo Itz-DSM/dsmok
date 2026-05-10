@@ -13,7 +13,6 @@ import appCss from "../styles.css?url";
 import { AuthProvider, useAuth } from "@/lib/auth-context";
 import { BottomNav } from "@/components/BottomNav";
 import { useEffect } from "react";
-import AuthPage from "@/routes/auth";
 
 function NotFoundComponent() {
   return (
