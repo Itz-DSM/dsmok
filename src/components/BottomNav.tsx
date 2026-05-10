@@ -6,16 +6,12 @@ export function BottomNav() {
   const { pathname } = useLocation();
   const { profile } = useAuth();
 
-  const items = [
+  const items: { to: string; icon: typeof Home; label: string; highlight?: boolean }[] = [
     { to: "/", icon: Home, label: "Home" },
     { to: "/search", icon: Search, label: "Search" },
     { to: "/upload", icon: PlusSquare, label: "Create", highlight: true },
-    {
-      to: profile ? `/u/${profile.username}` : "/auth",
-      icon: User,
-      label: "Profile",
-    },
-  ] as const;
+    { to: profile ? `/u/${profile.username}` : "/auth", icon: User, label: "Profile" },
+  ];
 
   return (
     <nav className="fixed bottom-0 inset-x-0 z-50 border-t border-border bg-background/85 backdrop-blur-lg">
