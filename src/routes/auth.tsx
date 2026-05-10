@@ -42,7 +42,8 @@ function AuthPage() {
           },
         });
         if (error) throw error;
-        toast.success("Welcome to Dsmok!");
+        toast.success("Check your email to verify your account before signing in.");
+        setMode("signin");
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
@@ -52,18 +53,6 @@ function AuthPage() {
     } finally {
       setBusy(false);
     }
-  };
-
-  const google = async () => {
-    setBusy(true);
-    const result = await lovable.auth.signInWithOAuth("google", { redirect_uri: window.location.origin });
-    if (result.error) {
-      toast.error("Google sign-in failed");
-      setBusy(false);
-      return;
-    }
-    if (result.redirected) return;
-    navigate({ to: "/" });
   };
 
   return (
