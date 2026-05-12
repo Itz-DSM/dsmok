@@ -2,13 +2,14 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { Search as SearchIcon, Hash, Video as VideoIcon, User as UserIcon, Play } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { VerifiedBadge } from "@/components/VerifiedBadge";
 
 export const Route = createFileRoute("/search")({
   head: () => ({ meta: [{ title: "Search — Dsmok" }] }),
   component: SearchPage,
 });
 
-type Person = { id: string; username: string; display_name: string | null; avatar_url: string | null; bio: string | null };
+type Person = { id: string; username: string; display_name: string | null; avatar_url: string | null; bio: string | null; verified: boolean | null };
 type Vid = {
   id: string;
   caption: string | null;
@@ -47,7 +48,7 @@ function SearchPage() {
       // People
       const peopleQ = supabase
         .from("profiles")
-        .select("id, username, display_name, avatar_url, bio")
+        .select("id, username, display_name, avatar_url, bio, verified")
         .order("created_at", { ascending: false })
         .limit(30);
       if (term) peopleQ.or(`username.ilike.%${term}%,display_name.ilike.%${term}%`);
@@ -55,7 +56,7 @@ function SearchPage() {
       // Videos by caption
       const videosQ = supabase
         .from("videos")
-        .select("id, caption, video_url, thumbnail_url, profiles!videos_user_id_fkey(username, avatar_url)")
+        .select("id, caption, video_url, thumbnail_url, profiles!videos_user_id_fkey(username, avatar_url, verified)")
         .order("created_at", { ascending: false })
         .limit(30);
       if (term) videosQ.ilike("caption", `%${term}%`);
@@ -174,7 +175,7 @@ function SearchPage() {
                         )}
                       </div>
                       <div className="min-w-0 flex-1">
-                        <p className="truncate font-semibold">@{r.username}</p>
+                        <p className="flex items-center gap-1 truncate font-semibold">@{r.username}<VerifiedBadge verified={r.verified} /></p>
                         {r.display_name && <p className="truncate text-sm text-muted-foreground">{r.display_name}</p>}
                       </div>
                     </Link>

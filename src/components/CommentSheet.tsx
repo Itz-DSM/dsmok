@@ -5,13 +5,14 @@ import { useAuth } from "@/lib/auth-context";
 import { toast } from "sonner";
 import { renderWithMentions } from "@/lib/mentions";
 import { MentionInput } from "./MentionInput";
+import { VerifiedBadge } from "./VerifiedBadge";
 
 type Comment = {
   id: string;
   text: string;
   created_at: string;
   user_id: string;
-  profiles: { username: string; avatar_url: string | null } | null;
+  profiles: { username: string; avatar_url: string | null; verified?: boolean | null } | null;
 };
 
 export function CommentSheet({
@@ -35,7 +36,7 @@ export function CommentSheet({
     setLoading(true);
     supabase
       .from("comments")
-      .select("id, text, created_at, user_id, profiles(username, avatar_url)")
+      .select("id, text, created_at, user_id, profiles(username, avatar_url, verified)")
       .eq("video_id", videoId)
       .order("created_at", { ascending: false })
       .then(({ data }) => {
@@ -53,7 +54,7 @@ export function CommentSheet({
     const { data, error } = await supabase
       .from("comments")
       .insert({ video_id: videoId, user_id: user.id, text: t })
-      .select("id, text, created_at, user_id, profiles(username, avatar_url)")
+      .select("id, text, created_at, user_id, profiles(username, avatar_url, verified)")
       .single();
     if (error) { toast.error(error.message); return; }
     setList((prev) => [data as any, ...prev]);
@@ -92,7 +93,10 @@ export function CommentSheet({
                   )}
                 </div>
                 <div className="min-w-0 flex-1">
-                  <p className="text-sm font-semibold">@{c.profiles?.username ?? "unknown"}</p>
+                  <p className="flex items-center gap-1 text-sm font-semibold">
+                    @{c.profiles?.username ?? "unknown"}
+                    <VerifiedBadge verified={c.profiles?.verified} />
+                  </p>
                   <p className="text-sm text-foreground/90 break-words">{renderWithMentions(c.text)}</p>
                 </div>
               </div>

@@ -1,9 +1,10 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
-import { LogOut, Settings, Camera } from "lucide-react";
+import { LogOut, Settings, Camera, BadgeCheck } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth-context";
 import { Button } from "@/components/ui/button";
+import { VerifiedBadge } from "@/components/VerifiedBadge";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/u/$username")({
@@ -22,6 +23,7 @@ type Profile = {
   display_name: string | null;
   avatar_url: string | null;
   bio: string | null;
+  verified: boolean | null;
 };
 
 function ProfilePage() {
@@ -144,9 +146,27 @@ function ProfilePage() {
       </div>
 
       <div className="mt-4">
-        <h1 className="text-xl font-bold">{profile.display_name || profile.username}</h1>
+        <h1 className="flex items-center gap-1.5 text-xl font-bold">
+          {profile.display_name || profile.username}
+          <VerifiedBadge verified={profile.verified} className="h-5 w-5" />
+        </h1>
         <p className="text-sm text-muted-foreground">@{profile.username}</p>
         {profile.bio && !editing && <p className="mt-2 text-sm">{profile.bio}</p>}
+        {meProfile?.username?.toLowerCase() === "itzdsm" && !isMe && (
+          <button
+            onClick={async () => {
+              const next = !profile.verified;
+              const { error } = await supabase.from("profiles").update({ verified: next }).eq("id", profile.id);
+              if (error) { toast.error(error.message); return; }
+              setProfile((p) => p ? { ...p, verified: next } : p);
+              toast.success(next ? "User verified" : "Verification removed");
+            }}
+            className="mt-3 inline-flex items-center gap-1.5 rounded-full border border-primary/40 bg-primary/10 px-3 py-1.5 text-xs font-semibold text-primary hover:bg-primary/20"
+          >
+            <BadgeCheck className="h-4 w-4" />
+            {profile.verified ? "Remove verification" : "Verify this user"}
+          </button>
+        )}
       </div>
 
       <div className="mt-4 flex gap-6 text-sm">

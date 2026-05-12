@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { CommentSheet } from "./CommentSheet";
 import { renderWithMentions } from "@/lib/mentions";
 import { MentionInput } from "./MentionInput";
+import { VerifiedBadge } from "./VerifiedBadge";
 
 export type FeedVideo = {
   id: string;
@@ -15,7 +16,7 @@ export type FeedVideo = {
   video_url: string;
   thumbnail_url: string | null;
   created_at: string;
-  profile: { username: string; display_name: string | null; avatar_url: string | null };
+  profile: { username: string; display_name: string | null; avatar_url: string | null; verified?: boolean | null };
   likes_count: number;
   comments_count: number;
   liked_by_me: boolean;
@@ -202,9 +203,10 @@ export function VideoCard({
         <Link
           to="/u/$username"
           params={{ username: video.profile.username }}
-          className="text-base font-bold drop-shadow"
+          className="inline-flex items-center gap-1 text-base font-bold drop-shadow"
         >
           @{video.profile.username}
+          <VerifiedBadge verified={video.profile.verified} />
         </Link>
         {video.caption && (
           <p className="mt-1 line-clamp-3 max-w-[80%] text-sm leading-snug drop-shadow">
