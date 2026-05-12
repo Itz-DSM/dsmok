@@ -41,6 +41,42 @@ export function VideoCard({
   const [paused, setPaused] = useState(false);
   const [showHeart, setShowHeart] = useState(false);
   const [commentsOpen, setCommentsOpen] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [editing, setEditing] = useState(false);
+  const [draft, setDraft] = useState(video.caption ?? "");
+  const [saving, setSaving] = useState(false);
+  const isOwner = !!user && user.id === video.user_id;
+
+  const saveCaption = async () => {
+    setSaving(true);
+    const { error } = await supabase
+      .from("videos")
+      .update({ caption: draft.trim() || null })
+      .eq("id", video.id);
+    setSaving(false);
+    if (error) { toast.error(error.message); return; }
+    onChange({ caption: draft.trim() || null });
+    setEditing(false);
+    toast.success("Caption updated");
+  };
+
+  const deleteVideo = async () => {
+    if (!confirm("Delete this video? This cannot be undone.")) return;
+    const { error } = await supabase.from("videos").delete().eq("id", video.id);
+    if (error) { toast.error(error.message); return; }
+    // Best-effort: remove storage object if path is recoverable
+    try {
+      const url = new URL(video.video_url);
+      const marker = "/storage/v1/object/public/videos/";
+      const idx = url.pathname.indexOf(marker);
+      if (idx >= 0) {
+        const path = decodeURIComponent(url.pathname.slice(idx + marker.length));
+        await supabase.storage.from("videos").remove([path]);
+      }
+    } catch {}
+    toast.success("Video deleted");
+    onDeleted?.(video.id);
+  };
 
   useEffect(() => {
     const el = ref.current;
