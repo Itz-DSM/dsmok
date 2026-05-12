@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { CommentSheet } from "./CommentSheet";
 import { renderWithMentions } from "@/lib/mentions";
 import { MentionInput } from "./MentionInput";
+import { VerifiedBadge } from "./VerifiedBadge";
 
 export type FeedVideo = {
   id: string;
