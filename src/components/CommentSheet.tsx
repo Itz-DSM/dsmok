@@ -93,7 +93,7 @@ export function CommentSheet({
                 </div>
                 <div className="min-w-0 flex-1">
                   <p className="text-sm font-semibold">@{c.profiles?.username ?? "unknown"}</p>
-                  <p className="text-sm text-foreground/90 break-words">{c.text}</p>
+                  <p className="text-sm text-foreground/90 break-words">{renderWithMentions(c.text)}</p>
                 </div>
               </div>
             ))
