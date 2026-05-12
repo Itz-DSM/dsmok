@@ -70,14 +70,22 @@ function Index() {
 
   useEffect(() => {
     const el = containerRef.current;
-    if (!el) return;
-    const onScroll = () => {
-      const idx = Math.round(el.scrollTop / window.innerHeight);
-      setActive(idx);
-    };
-    el.addEventListener("scroll", onScroll, { passive: true });
-    return () => el.removeEventListener("scroll", onScroll);
-  }, []);
+    if (!el || videos.length === 0) return;
+    const items = Array.from(el.querySelectorAll<HTMLElement>("[data-video-item]"));
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting && entry.intersectionRatio >= 0.6) {
+            const idx = Number((entry.target as HTMLElement).dataset.index);
+            if (!Number.isNaN(idx)) setActive(idx);
+          }
+        });
+      },
+      { root: el, threshold: [0, 0.6, 1] }
+    );
+    items.forEach((it) => observer.observe(it));
+    return () => observer.disconnect();
+  }, [videos.length]);
 
   if (loading) {
     return (
