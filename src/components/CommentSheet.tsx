@@ -3,6 +3,8 @@ import { X, Send } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth-context";
 import { toast } from "sonner";
+import { renderWithMentions } from "@/lib/mentions";
+import { MentionInput } from "./MentionInput";
 
 type Comment = {
   id: string;
