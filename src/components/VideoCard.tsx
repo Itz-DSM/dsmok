@@ -153,7 +153,9 @@ export function VideoCard({
           @{video.profile.username}
         </Link>
         {video.caption && (
-          <p className="mt-1 line-clamp-3 max-w-[80%] text-sm leading-snug drop-shadow">{video.caption}</p>
+          <p className="mt-1 line-clamp-3 max-w-[80%] text-sm leading-snug drop-shadow">
+            {renderWithMentions(video.caption)}
+          </p>
         )}
       </div>
 
