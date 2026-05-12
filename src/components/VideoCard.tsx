@@ -143,6 +143,60 @@ export function VideoCard({
 
       <div className="pointer-events-none absolute inset-x-0 bottom-0 h-2/5 bg-gradient-to-t from-black/80 to-transparent" />
 
+      {isOwner && (
+        <div className="absolute right-3 top-4 z-20">
+          <button
+            onClick={(e) => { e.stopPropagation(); setMenuOpen((o) => !o); }}
+            className="rounded-full bg-black/40 p-2 text-white backdrop-blur hover:bg-black/60"
+            aria-label="Video options"
+          >
+            <MoreVertical className="h-5 w-5" />
+          </button>
+          {menuOpen && (
+            <>
+              <div className="fixed inset-0 z-10" onClick={() => setMenuOpen(false)} />
+              <div className="absolute right-0 top-12 z-20 w-44 overflow-hidden rounded-xl border border-border bg-popover shadow-2xl">
+                <button
+                  onClick={() => { setMenuOpen(false); setDraft(video.caption ?? ""); setEditing(true); }}
+                  className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm hover:bg-muted"
+                >
+                  <Pencil className="h-4 w-4" /> Edit caption
+                </button>
+                <button
+                  onClick={() => { setMenuOpen(false); deleteVideo(); }}
+                  className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-destructive hover:bg-muted"
+                >
+                  <Trash2 className="h-4 w-4" /> Delete video
+                </button>
+              </div>
+            </>
+          )}
+        </div>
+      )}
+
+      {editing && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4" onClick={() => !saving && setEditing(false)}>
+          <div className="w-full max-w-md rounded-2xl border border-border bg-card p-4 shadow-2xl" onClick={(e) => e.stopPropagation()}>
+            <h3 className="mb-3 font-semibold">Edit caption</h3>
+            <MentionInput
+              value={draft}
+              onChange={setDraft}
+              multiline
+              maxLength={500}
+              placeholder="Write a caption… use @ to mention someone"
+              inputClassName="w-full resize-none rounded-lg border border-border bg-muted px-3 py-2 text-sm outline-none placeholder:text-muted-foreground"
+            />
+            <div className="mt-4 flex justify-end gap-2">
+              <button onClick={() => setEditing(false)} disabled={saving} className="rounded-full px-4 py-2 text-sm hover:bg-muted">Cancel</button>
+              <button onClick={saveCaption} disabled={saving} className="rounded-full bg-gradient-brand px-4 py-2 text-sm font-semibold text-primary-foreground disabled:opacity-50">
+                {saving ? "Saving…" : "Save"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+
       {/* Bottom-left: author + caption */}
       <div className="absolute inset-x-0 bottom-20 px-4 pb-3 text-white">
         <Link
