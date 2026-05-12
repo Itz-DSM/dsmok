@@ -37,15 +37,26 @@ function NotificationsPage() {
     if (loading) return;
     if (!user) { navigate({ to: "/auth" }); return; }
     (async () => {
-      const { data } = await supabase
+      const { data: rows } = await supabase
         .from("notifications")
-        .select("id, type, video_id, read, created_at, actor:profiles!notifications_actor_id_fkey(username, avatar_url, verified)")
+        .select("id, type, video_id, read, created_at, actor_id")
         .eq("recipient_id", user.id)
         .order("created_at", { ascending: false })
         .limit(100);
-      setItems((data as any) || []);
+      const list = (rows as any[]) || [];
+      const actorIds = Array.from(new Set(list.map((r) => r.actor_id)));
+      let actorMap: Record<string, Notif["actor"]> = {};
+      if (actorIds.length) {
+        const { data: profs } = await supabase
+          .from("profiles")
+          .select("id, username, avatar_url, verified")
+          .in("id", actorIds);
+        (profs || []).forEach((p: any) => {
+          actorMap[p.id] = { username: p.username, avatar_url: p.avatar_url, verified: p.verified };
+        });
+      }
+      setItems(list.map((r) => ({ ...r, actor: actorMap[r.actor_id] ?? null })));
       setBusy(false);
-      // mark all as read
       await supabase.from("notifications").update({ read: true }).eq("recipient_id", user.id).eq("read", false);
     })();
   }, [user, loading]);
