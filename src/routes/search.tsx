@@ -47,7 +47,7 @@ function SearchPage() {
       // People
       const peopleQ = supabase
         .from("profiles")
-        .select("id, username, display_name, avatar_url, bio")
+        .select("id, username, display_name, avatar_url, bio, verified")
         .order("created_at", { ascending: false })
         .limit(30);
       if (term) peopleQ.or(`username.ilike.%${term}%,display_name.ilike.%${term}%`);
@@ -55,7 +55,7 @@ function SearchPage() {
       // Videos by caption
       const videosQ = supabase
         .from("videos")
-        .select("id, caption, video_url, thumbnail_url, profiles!videos_user_id_fkey(username, avatar_url)")
+        .select("id, caption, video_url, thumbnail_url, profiles!videos_user_id_fkey(username, avatar_url, verified)")
         .order("created_at", { ascending: false })
         .limit(30);
       if (term) videosQ.ilike("caption", `%${term}%`);
