@@ -119,6 +119,36 @@ export type Database = {
           },
         ]
       }
+      notifications: {
+        Row: {
+          actor_id: string
+          created_at: string
+          id: string
+          read: boolean
+          recipient_id: string
+          type: string
+          video_id: string | null
+        }
+        Insert: {
+          actor_id: string
+          created_at?: string
+          id?: string
+          read?: boolean
+          recipient_id: string
+          type: string
+          video_id?: string | null
+        }
+        Update: {
+          actor_id?: string
+          created_at?: string
+          id?: string
+          read?: boolean
+          recipient_id?: string
+          type?: string
+          video_id?: string | null
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -127,6 +157,7 @@ export type Database = {
           display_name: string | null
           id: string
           username: string
+          verified: boolean
         }
         Insert: {
           avatar_url?: string | null
@@ -135,6 +166,7 @@ export type Database = {
           display_name?: string | null
           id: string
           username: string
+          verified?: boolean
         }
         Update: {
           avatar_url?: string | null
@@ -143,6 +175,7 @@ export type Database = {
           display_name?: string | null
           id?: string
           username?: string
+          verified?: boolean
         }
         Relationships: []
       }
@@ -189,7 +222,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      is_platform_owner: { Args: { _user_id: string }; Returns: boolean }
     }
     Enums: {
       [_ in never]: never
