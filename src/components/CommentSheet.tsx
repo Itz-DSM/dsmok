@@ -3,6 +3,8 @@ import { X, Send } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth-context";
 import { toast } from "sonner";
+import { renderWithMentions } from "@/lib/mentions";
+import { MentionInput } from "./MentionInput";
 
 type Comment = {
   id: string;
@@ -91,7 +93,7 @@ export function CommentSheet({
                 </div>
                 <div className="min-w-0 flex-1">
                   <p className="text-sm font-semibold">@{c.profiles?.username ?? "unknown"}</p>
-                  <p className="text-sm text-foreground/90 break-words">{c.text}</p>
+                  <p className="text-sm text-foreground/90 break-words">{renderWithMentions(c.text)}</p>
                 </div>
               </div>
             ))
@@ -99,13 +101,14 @@ export function CommentSheet({
         </div>
 
         <form onSubmit={submit} className="mt-4 flex items-center gap-2 border-t border-border pt-3">
-          <input
+          <MentionInput
             value={text}
-            onChange={(e) => setText(e.target.value)}
-            placeholder={user ? "Add a comment…" : "Sign in to comment"}
+            onChange={setText}
+            placeholder={user ? "Add a comment… use @ to mention" : "Sign in to comment"}
             disabled={!user}
             maxLength={500}
-            className="flex-1 rounded-full bg-muted px-4 py-2 text-sm outline-none placeholder:text-muted-foreground"
+            className="flex-1"
+            inputClassName="w-full rounded-full bg-muted px-4 py-2 text-sm outline-none placeholder:text-muted-foreground"
           />
           <button type="submit" disabled={!user || !text.trim()} className="rounded-full bg-gradient-brand p-2 text-primary-foreground disabled:opacity-50">
             <Send className="h-4 w-4" />
