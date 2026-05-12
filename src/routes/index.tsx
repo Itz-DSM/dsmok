@@ -26,7 +26,7 @@ function Index() {
     (async () => {
       const { data: vids } = await supabase
         .from("videos")
-        .select("id, user_id, caption, video_url, thumbnail_url, created_at, profiles!videos_user_id_fkey(username, display_name, avatar_url)")
+        .select("id, user_id, caption, video_url, thumbnail_url, created_at, profiles!videos_user_id_fkey(username, display_name, avatar_url, verified)")
         .order("created_at", { ascending: false })
         .limit(50);
       const list = (vids || []) as any[];
