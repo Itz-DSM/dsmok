@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { Search as SearchIcon, Hash, Video as VideoIcon, User as UserIcon, Play } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { VerifiedBadge } from "@/components/VerifiedBadge";
 
 export const Route = createFileRoute("/search")({
   head: () => ({ meta: [{ title: "Search — Dsmok" }] }),
