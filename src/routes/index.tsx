@@ -121,16 +121,17 @@ function Index() {
         className="no-scrollbar h-[100dvh] snap-y snap-mandatory overflow-y-scroll"
       >
         {videos.map((v, i) => (
-          <VideoCard
-            key={v.id}
-            video={v}
-            active={i === active}
-            muted={muted}
-            onToggleMute={() => setMuted((m) => !m)}
-            onChange={(next) =>
-              setVideos((prev) => prev.map((p, idx) => (idx === i ? { ...p, ...next } : p)))
-            }
-          />
+          <div key={v.id} data-video-item data-index={i} className="h-[100dvh] w-full snap-start snap-always">
+            <VideoCard
+              video={v}
+              active={i === active}
+              muted={muted}
+              onToggleMute={() => setMuted((m) => !m)}
+              onChange={(next) =>
+                setVideos((prev) => prev.map((p, idx) => (idx === i ? { ...p, ...next } : p)))
+              }
+            />
+          </div>
         ))}
       </div>
     </>
