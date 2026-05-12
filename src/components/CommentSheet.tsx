@@ -5,6 +5,7 @@ import { useAuth } from "@/lib/auth-context";
 import { toast } from "sonner";
 import { renderWithMentions } from "@/lib/mentions";
 import { MentionInput } from "./MentionInput";
+import { VerifiedBadge } from "./VerifiedBadge";
 
 type Comment = {
   id: string;
