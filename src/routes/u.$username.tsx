@@ -23,6 +23,7 @@ type Profile = {
   display_name: string | null;
   avatar_url: string | null;
   bio: string | null;
+  verified: boolean | null;
 };
 
 function ProfilePage() {
