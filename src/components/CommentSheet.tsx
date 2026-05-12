@@ -36,7 +36,7 @@ export function CommentSheet({
     setLoading(true);
     supabase
       .from("comments")
-      .select("id, text, created_at, user_id, profiles(username, avatar_url)")
+      .select("id, text, created_at, user_id, profiles(username, avatar_url, verified)")
       .eq("video_id", videoId)
       .order("created_at", { ascending: false })
       .then(({ data }) => {
@@ -54,7 +54,7 @@ export function CommentSheet({
     const { data, error } = await supabase
       .from("comments")
       .insert({ video_id: videoId, user_id: user.id, text: t })
-      .select("id, text, created_at, user_id, profiles(username, avatar_url)")
+      .select("id, text, created_at, user_id, profiles(username, avatar_url, verified)")
       .single();
     if (error) { toast.error(error.message); return; }
     setList((prev) => [data as any, ...prev]);
