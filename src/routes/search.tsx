@@ -8,7 +8,7 @@ export const Route = createFileRoute("/search")({
   component: SearchPage,
 });
 
-type Person = { id: string; username: string; display_name: string | null; avatar_url: string | null; bio: string | null };
+type Person = { id: string; username: string; display_name: string | null; avatar_url: string | null; bio: string | null; verified: boolean | null };
 type Vid = {
   id: string;
   caption: string | null;
