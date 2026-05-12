@@ -12,7 +12,7 @@ type Comment = {
   text: string;
   created_at: string;
   user_id: string;
-  profiles: { username: string; avatar_url: string | null } | null;
+  profiles: { username: string; avatar_url: string | null; verified?: boolean | null } | null;
 };
 
 export function CommentSheet({
