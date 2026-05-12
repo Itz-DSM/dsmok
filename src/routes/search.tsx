@@ -175,7 +175,7 @@ function SearchPage() {
                         )}
                       </div>
                       <div className="min-w-0 flex-1">
-                        <p className="truncate font-semibold">@{r.username}</p>
+                        <p className="flex items-center gap-1 truncate font-semibold">@{r.username}<VerifiedBadge verified={r.verified} /></p>
                         {r.display_name && <p className="truncate text-sm text-muted-foreground">{r.display_name}</p>}
                       </div>
                     </Link>
