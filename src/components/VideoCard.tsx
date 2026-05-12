@@ -15,7 +15,7 @@ export type FeedVideo = {
   video_url: string;
   thumbnail_url: string | null;
   created_at: string;
-  profile: { username: string; display_name: string | null; avatar_url: string | null };
+  profile: { username: string; display_name: string | null; avatar_url: string | null; verified?: boolean | null };
   likes_count: number;
   comments_count: number;
   liked_by_me: boolean;
