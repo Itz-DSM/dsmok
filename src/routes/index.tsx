@@ -130,6 +130,7 @@ function Index() {
               onChange={(next) =>
                 setVideos((prev) => prev.map((p, idx) => (idx === i ? { ...p, ...next } : p)))
               }
+              onDeleted={(id) => setVideos((prev) => prev.filter((p) => p.id !== id))}
             />
           </div>
         ))}
