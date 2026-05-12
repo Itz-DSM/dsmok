@@ -27,12 +27,14 @@ export function VideoCard({
   muted,
   onToggleMute,
   onChange,
+  onDeleted,
 }: {
   video: FeedVideo;
   active: boolean;
   muted: boolean;
   onToggleMute: () => void;
   onChange: (next: Partial<FeedVideo>) => void;
+  onDeleted?: (id: string) => void;
 }) {
   const ref = useRef<HTMLVideoElement>(null);
   const { user } = useAuth();
