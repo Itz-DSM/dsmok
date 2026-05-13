@@ -4,6 +4,7 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 
 import { useAuth } from "@/lib/auth-context";
+import { markGuestSessionStart } from "@/lib/guest";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -21,6 +22,38 @@ function AuthPage() {
   const [password, setPassword] = useState("");
   const [username, setUsername] = useState("");
   const [busy, setBusy] = useState(false);
+
+  const signInAsGuest = async () => {
+    setBusy(true);
+    try {
+      const stamp = Date.now();
+      const guestEmail = `guest_${stamp}@guest.dsmok.local`;
+      const guestPassword = `Guest!${stamp}aA`;
+      const guestUsername = `guest${String(stamp).slice(-6)}`;
+
+      const { error } = await supabase.auth.signUp({
+        email: guestEmail,
+        password: guestPassword,
+        options: {
+          data: { username: guestUsername, display_name: "Guest" },
+        },
+      });
+      if (error) throw error;
+
+      const { error: loginError } = await supabase.auth.signInWithPassword({
+        email: guestEmail,
+        password: guestPassword,
+      });
+      if (loginError) throw loginError;
+
+      markGuestSessionStart();
+      toast.success("Guest session started for 30 minutes.");
+    } catch (err: any) {
+      toast.error(err.message || "Guest sign in failed");
+    } finally {
+      setBusy(false);
+    }
+  };
 
   useEffect(() => {
     if (session) navigate({ to: "/" });
@@ -97,12 +130,15 @@ function AuthPage() {
             <Button type="submit" disabled={busy} className="w-full bg-gradient-brand text-primary-foreground hover:opacity-90">
               {busy ? "..." : mode === "signin" ? "Sign in" : "Create account"}
             </Button>
+            <Button type="button" variant="outline" disabled={busy} className="w-full" onClick={signInAsGuest}>
+              Continue as guest
+            </Button>
           </form>
 
           <p className="mt-4 text-center text-xs text-muted-foreground">
             {mode === "signup"
               ? "We'll email you a verification link. You must verify before signing in."
-              : "New here? Create an account to get full access to Dsmok."}
+              : "New here? Create an account to get full access to Dsmok, or use a 30-minute guest pass."}
           </p>
         </div>
       </div>

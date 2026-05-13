@@ -1,6 +1,7 @@
-import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
+import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 import type { Session, User } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
+import { clearGuestSession, getGuestTimeRemaining, isGuestEmail } from "@/lib/guest";
 
 export type Profile = {
   id: string;
@@ -16,6 +17,8 @@ type Ctx = {
   user: User | null;
   profile: Profile | null;
   loading: boolean;
+  isGuest: boolean;
+  guestTimeRemaining: number | null;
   refreshProfile: () => Promise<void>;
   signOut: () => Promise<void>;
 };
@@ -26,6 +29,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
+  const [guestTimeRemaining, setGuestTimeRemaining] = useState<number | null>(null);
+
+  const isGuest = useMemo(() => isGuestEmail(session?.user?.email), [session?.user?.email]);
 
   const loadProfile = async (userId: string) => {
     const { data } = await supabase.from("profiles").select("*").eq("id", userId).maybeSingle();
@@ -51,6 +57,35 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => sub.subscription.unsubscribe();
   }, []);
 
+  useEffect(() => {
+    if (!session?.user || !isGuest) {
+      setGuestTimeRemaining(null);
+      return;
+    }
+
+    const sync = async () => {
+      const remaining = getGuestTimeRemaining();
+      if (remaining === null) {
+        clearGuestSession();
+        await supabase.auth.signOut();
+        return;
+      }
+      if (remaining <= 0) {
+        clearGuestSession();
+        await supabase.auth.signOut();
+        return;
+      }
+      setGuestTimeRemaining(remaining);
+    };
+
+    sync();
+    const interval = window.setInterval(() => {
+      void sync();
+    }, 1000);
+
+    return () => window.clearInterval(interval);
+  }, [session?.user?.id, isGuest]);
+
   return (
     <AuthContext.Provider
       value={{
@@ -58,8 +93,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         user: session?.user ?? null,
         profile,
         loading,
+        isGuest,
+        guestTimeRemaining,
         refreshProfile: async () => session?.user && loadProfile(session.user.id),
         signOut: async () => {
+          clearGuestSession();
           await supabase.auth.signOut();
         },
       }}
