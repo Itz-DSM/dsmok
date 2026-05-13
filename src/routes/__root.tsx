@@ -13,6 +13,7 @@ import appCss from "../styles.css?url";
 import { AuthProvider, useAuth } from "@/lib/auth-context";
 import { BottomNav } from "@/components/BottomNav";
 import { useEffect } from "react";
+import { formatGuestTimeRemaining } from "@/lib/guest";
 
 function NotFoundComponent() {
   return (
@@ -86,7 +87,7 @@ function RootShell({ children }: { children: React.ReactNode }) {
 function Layout() {
   const { pathname } = useLocation();
   const router = useRouter();
-  const { session, loading } = useAuth();
+  const { session, loading, isGuest, guestTimeRemaining } = useAuth();
   const hideNav = pathname === "/auth";
 
   useEffect(() => {
@@ -97,6 +98,11 @@ function Layout() {
 
   return (
     <div className="min-h-screen bg-background text-foreground">
+      {session && isGuest && guestTimeRemaining !== null && (
+        <div className="sticky top-0 z-40 border-b border-border bg-card/95 px-4 py-2 text-center text-xs text-muted-foreground backdrop-blur">
+          Guest session ends in <span className="font-semibold text-foreground">{formatGuestTimeRemaining(guestTimeRemaining)}</span>
+        </div>
+      )}
       {loading ? (
         <div className="flex min-h-screen items-center justify-center text-muted-foreground">Loading…</div>
       ) : !session && pathname !== "/auth" ? (
