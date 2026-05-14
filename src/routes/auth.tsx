@@ -2,7 +2,8 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
-
+import { useServerFn } from "@tanstack/react-start";
+import { createGuestAccount } from "@/lib/guest.functions";
 import { useAuth } from "@/lib/auth-context";
 import { markGuestSessionStart } from "@/lib/guest";
 import { Button } from "@/components/ui/button";
