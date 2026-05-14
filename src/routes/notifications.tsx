@@ -62,16 +62,26 @@ function NotificationsPage() {
   }, [user, loading]);
 
   const verb = (n: Notif) =>
-    n.type === "like" ? "liked your video" : n.type === "comment" ? "commented on your video" : "started following you";
-  const Icon = (t: Notif["type"]) => (t === "like" ? Heart : t === "comment" ? MessageCircle : UserPlus);
+    n.type === "like" ? "liked your video"
+      : n.type === "comment" ? "commented on your video"
+      : n.type === "repost" ? "reposted your video"
+      : n.type === "message" ? "sent you a message"
+      : "started following you";
+  const Icon = (t: Notif["type"]) =>
+    t === "like" ? Heart : t === "comment" ? MessageCircle : t === "repost" ? Repeat2 : t === "message" ? Mail : UserPlus;
   const tint = (t: Notif["type"]) =>
-    t === "like" ? "text-primary" : t === "comment" ? "text-foreground" : "text-emerald-400";
+    t === "like" ? "text-primary" : t === "repost" ? "text-secondary" : t === "follow" ? "text-emerald-400" : "text-foreground";
 
   return (
     <div className="mx-auto min-h-[100dvh] max-w-2xl px-4 pb-28 pt-6">
-      <h1 className="mb-5 flex items-center gap-2 text-2xl font-bold">
-        <Bell className="h-6 w-6" /> Notifications
-      </h1>
+      <div className="mb-5 flex items-center justify-between">
+        <h1 className="flex items-center gap-2 text-2xl font-bold">
+          <Bell className="h-6 w-6" /> Notifications
+        </h1>
+        <Link to="/inbox" className="inline-flex items-center gap-1.5 rounded-full bg-card px-3 py-1.5 text-sm font-semibold hover:bg-muted">
+          <Mail className="h-4 w-4" /> Messages
+        </Link>
+      </div>
       {busy ? (
         <p className="py-10 text-center text-sm text-muted-foreground">Loading…</p>
       ) : items.length === 0 ? (
