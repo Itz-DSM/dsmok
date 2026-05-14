@@ -1,6 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
-import { LogOut, Settings, Camera, BadgeCheck } from "lucide-react";
+import { LogOut, Settings, Camera, BadgeCheck, MessageCircle } from "lucide-react";
+import { DirectMessageSheet } from "@/components/DirectMessageSheet";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth-context";
 import { Button } from "@/components/ui/button";
