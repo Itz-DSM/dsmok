@@ -183,10 +183,21 @@ function ProfilePage() {
       </div>
 
       {!isMe && user && (
-        <Button onClick={toggleFollow} className={`mt-4 w-full ${isFollowing ? "" : "bg-gradient-brand text-primary-foreground hover:opacity-90"}`} variant={isFollowing ? "outline" : "default"}>
-          {isFollowing ? "Following" : "Follow"}
-        </Button>
+        <div className="mt-4 flex gap-2">
+          <Button onClick={toggleFollow} className={`flex-1 ${isFollowing ? "" : "bg-gradient-brand text-primary-foreground hover:opacity-90"}`} variant={isFollowing ? "outline" : "default"}>
+            {isFollowing ? "Following" : "Follow"}
+          </Button>
+          <Button onClick={() => setDmOpen(true)} variant="outline" className="flex-1">
+            <MessageCircle className="mr-1.5 h-4 w-4" /> Message
+          </Button>
+        </div>
       )}
+
+      <DirectMessageSheet
+        open={dmOpen}
+        onClose={() => setDmOpen(false)}
+        target={profile ? { id: profile.id, username: profile.username, avatar_url: profile.avatar_url } : null}
+      />
 
       {editing && isMe && (
         <div className="mt-4 space-y-3 rounded-xl border border-border bg-card p-4">
