@@ -200,13 +200,32 @@ function ProfilePage() {
         </div>
       )}
 
-      <div className="mt-6 grid grid-cols-3 gap-1">
-        {videos.map((v) => (
+      <div className="mt-6 flex border-b border-border">
+        <button
+          onClick={() => setTab("posts")}
+          className={`flex-1 py-2 text-sm font-semibold ${tab === "posts" ? "border-b-2 border-primary text-foreground" : "text-muted-foreground"}`}
+        >
+          Posts ({videos.length})
+        </button>
+        <button
+          onClick={() => setTab("reposts")}
+          className={`flex-1 py-2 text-sm font-semibold ${tab === "reposts" ? "border-b-2 border-primary text-foreground" : "text-muted-foreground"}`}
+        >
+          Reposts ({reposts.length})
+        </button>
+      </div>
+
+      <div className="mt-2 grid grid-cols-3 gap-1">
+        {(tab === "posts" ? videos : reposts).map((v) => (
           <Link key={v.id} to="/" className="group relative aspect-[3/4] overflow-hidden rounded-md bg-muted">
             <video src={v.video_url} poster={v.thumbnail_url ?? undefined} className="h-full w-full object-cover" muted preload="metadata" />
           </Link>
         ))}
-        {videos.length === 0 && <p className="col-span-3 py-10 text-center text-sm text-muted-foreground">No videos yet.</p>}
+        {(tab === "posts" ? videos : reposts).length === 0 && (
+          <p className="col-span-3 py-10 text-center text-sm text-muted-foreground">
+            {tab === "posts" ? "No videos yet." : "No reposts yet."}
+          </p>
+        )}
       </div>
     </div>
   );
