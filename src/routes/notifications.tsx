@@ -12,7 +12,7 @@ export const Route = createFileRoute("/notifications")({
 
 type Notif = {
   id: string;
-  type: "like" | "follow" | "comment";
+  type: "like" | "follow" | "comment" | "repost" | "message";
   video_id: string | null;
   read: boolean;
   created_at: string;
