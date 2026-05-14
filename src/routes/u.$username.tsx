@@ -152,19 +152,20 @@ function ProfilePage() {
         </h1>
         <p className="text-sm text-muted-foreground">@{profile.username}</p>
         {profile.bio && !editing && <p className="mt-2 text-sm">{profile.bio}</p>}
-        {meProfile?.username?.toLowerCase() === "itzdsm" && !isMe && (
+        {meProfile?.username?.toLowerCase() === "itzdsm" && (
           <button
             onClick={async () => {
               const next = !profile.verified;
               const { error } = await supabase.from("profiles").update({ verified: next }).eq("id", profile.id);
               if (error) { toast.error(error.message); return; }
               setProfile((p) => p ? { ...p, verified: next } : p);
-              toast.success(next ? "User verified" : "Verification removed");
+              if (isMe) await refreshProfile();
+              toast.success(next ? "Verified" : "Verification removed");
             }}
             className="mt-3 inline-flex items-center gap-1.5 rounded-full border border-primary/40 bg-primary/10 px-3 py-1.5 text-xs font-semibold text-primary hover:bg-primary/20"
           >
             <BadgeCheck className="h-4 w-4" />
-            {profile.verified ? "Remove verification" : "Verify this user"}
+            {profile.verified ? "Remove verification" : isMe ? "Verify yourself" : "Verify this user"}
           </button>
         )}
       </div>
