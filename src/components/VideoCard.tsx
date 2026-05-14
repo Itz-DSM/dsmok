@@ -223,7 +223,7 @@ export function VideoCard({
           className="inline-flex items-center gap-1 text-base font-bold drop-shadow"
         >
           @{video.profile.username}
-          <VerifiedBadge verified={video.profile.verified} />
+          <VerifiedBadge verified={video.profile.verified} owner={video.profile.username.toLowerCase() === "itzdsm"} />
         </Link>
         {video.caption && (
           <p className="mt-1 line-clamp-3 max-w-[80%] text-sm leading-snug drop-shadow">
