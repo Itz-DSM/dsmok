@@ -119,6 +119,21 @@ export function VideoCard({
     else { setShowHeart(true); setTimeout(() => setShowHeart(false), 500); }
   };
 
+  const toggleRepost = async () => {
+    if (!user) { toast.error("Sign in to repost"); return; }
+    const next = !video.reposted_by_me;
+    onChange({
+      reposted_by_me: next,
+      reposts_count: video.reposts_count + (next ? 1 : -1),
+    });
+    if (next) {
+      await supabase.from("reposts").insert({ user_id: user.id, video_id: video.id });
+      toast.success("Reposted");
+    } else {
+      await supabase.from("reposts").delete().eq("user_id", user.id).eq("video_id", video.id);
+    }
+  };
+
   return (
     <div className="relative h-[100dvh] w-full snap-start snap-always bg-black">
       <video
