@@ -259,6 +259,11 @@ export function VideoCard({
           <span className="text-xs font-semibold drop-shadow">{video.comments_count}</span>
         </button>
 
+        <button onClick={toggleRepost} className="flex flex-col items-center gap-1 text-white">
+          <Repeat2 className={`h-9 w-9 drop-shadow ${video.reposted_by_me ? "text-secondary" : "text-white"}`} />
+          <span className="text-xs font-semibold drop-shadow">{video.reposts_count}</span>
+        </button>
+
         <button onClick={onToggleMute} className="text-white">
           {muted ? <VolumeX className="h-7 w-7 drop-shadow" /> : <Volume2 className="h-7 w-7 drop-shadow" />}
         </button>
