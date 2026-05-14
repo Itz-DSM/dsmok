@@ -148,10 +148,10 @@ function ProfilePage() {
       <div className="mt-4">
         <h1 className="flex items-center gap-1.5 text-xl font-bold">
           {profile.display_name || profile.username}
-          <VerifiedBadge verified={profile.verified} className="h-5 w-5" />
+          <VerifiedBadge verified={profile.verified} owner={profile.username.toLowerCase() === "itzdsm"} className="h-5 w-5" />
         </h1>
         <p className="text-sm text-muted-foreground">@{profile.username}</p>
-        {profile.bio && !editing && <p className="mt-2 text-sm">{profile.bio}</p>}
+        {profile.bio && !editing && <p className="mt-2 whitespace-pre-wrap text-sm">{profile.bio}</p>}
         {meProfile?.username?.toLowerCase() === "itzdsm" && (
           <button
             onClick={async () => {
