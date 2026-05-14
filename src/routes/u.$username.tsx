@@ -32,6 +32,8 @@ function ProfilePage() {
   const navigate = useNavigate();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [videos, setVideos] = useState<{ id: string; video_url: string; thumbnail_url: string | null }[]>([]);
+  const [reposts, setReposts] = useState<{ id: string; video_url: string; thumbnail_url: string | null }[]>([]);
+  const [tab, setTab] = useState<"posts" | "reposts">("posts");
   const [followers, setFollowers] = useState(0);
   const [following, setFollowing] = useState(0);
   const [isFollowing, setIsFollowing] = useState(false);
@@ -51,12 +53,14 @@ function ProfilePage() {
       setProfile(p as Profile);
       setBio(p.bio ?? "");
       setDisplayName(p.display_name ?? "");
-      const [{ data: vids }, { data: fers }, { data: fing }] = await Promise.all([
+      const [{ data: vids }, { data: fers }, { data: fing }, { data: rep }] = await Promise.all([
         supabase.from("videos").select("id, video_url, thumbnail_url").eq("user_id", p.id).order("created_at", { ascending: false }),
         supabase.from("follows").select("follower_id").eq("following_id", p.id),
         supabase.from("follows").select("following_id").eq("follower_id", p.id),
+        supabase.from("reposts").select("created_at, videos(id, video_url, thumbnail_url)").eq("user_id", p.id).order("created_at", { ascending: false }),
       ]);
       setVideos((vids as any) || []);
+      setReposts(((rep as any) || []).map((r: any) => r.videos).filter(Boolean));
       setFollowers(fers?.length || 0);
       setFollowing(fing?.length || 0);
       if (user) {
