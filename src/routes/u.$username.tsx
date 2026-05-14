@@ -43,6 +43,7 @@ function ProfilePage() {
   const [bio, setBio] = useState("");
   const [displayName, setDisplayName] = useState("");
   const fileRef = useRef<HTMLInputElement>(null);
+  const [dmOpen, setDmOpen] = useState(false);
 
   const isMe = meProfile?.username === username;
 
