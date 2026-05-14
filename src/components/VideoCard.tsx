@@ -19,7 +19,9 @@ export type FeedVideo = {
   profile: { username: string; display_name: string | null; avatar_url: string | null; verified?: boolean | null };
   likes_count: number;
   comments_count: number;
+  reposts_count: number;
   liked_by_me: boolean;
+  reposted_by_me: boolean;
 };
 
 export function VideoCard({
