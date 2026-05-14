@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Heart, MessageCircle, UserPlus, Bell } from "lucide-react";
+import { Heart, MessageCircle, UserPlus, Bell, Repeat2, Mail } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth-context";
 import { VerifiedBadge } from "@/components/VerifiedBadge";
