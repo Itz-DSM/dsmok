@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as UploadRouteImport } from './routes/upload'
 import { Route as SearchRouteImport } from './routes/search'
 import { Route as NotificationsRouteImport } from './routes/notifications'
+import { Route as InboxRouteImport } from './routes/inbox'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as UUsernameRouteImport } from './routes/u.$username'
@@ -29,6 +30,11 @@ const SearchRoute = SearchRouteImport.update({
 const NotificationsRoute = NotificationsRouteImport.update({
   id: '/notifications',
   path: '/notifications',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InboxRoute = InboxRouteImport.update({
+  id: '/inbox',
+  path: '/inbox',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthRoute = AuthRouteImport.update({
@@ -50,6 +56,7 @@ const UUsernameRoute = UUsernameRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/inbox': typeof InboxRoute
   '/notifications': typeof NotificationsRoute
   '/search': typeof SearchRoute
   '/upload': typeof UploadRoute
@@ -58,6 +65,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/inbox': typeof InboxRoute
   '/notifications': typeof NotificationsRoute
   '/search': typeof SearchRoute
   '/upload': typeof UploadRoute
@@ -67,6 +75,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/inbox': typeof InboxRoute
   '/notifications': typeof NotificationsRoute
   '/search': typeof SearchRoute
   '/upload': typeof UploadRoute
@@ -77,16 +86,25 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/auth'
+    | '/inbox'
     | '/notifications'
     | '/search'
     | '/upload'
     | '/u/$username'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/auth' | '/notifications' | '/search' | '/upload' | '/u/$username'
+  to:
+    | '/'
+    | '/auth'
+    | '/inbox'
+    | '/notifications'
+    | '/search'
+    | '/upload'
+    | '/u/$username'
   id:
     | '__root__'
     | '/'
     | '/auth'
+    | '/inbox'
     | '/notifications'
     | '/search'
     | '/upload'
@@ -96,6 +114,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthRoute: typeof AuthRoute
+  InboxRoute: typeof InboxRoute
   NotificationsRoute: typeof NotificationsRoute
   SearchRoute: typeof SearchRoute
   UploadRoute: typeof UploadRoute
@@ -125,6 +144,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof NotificationsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/inbox': {
+      id: '/inbox'
+      path: '/inbox'
+      fullPath: '/inbox'
+      preLoaderRoute: typeof InboxRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/auth': {
       id: '/auth'
       path: '/auth'
@@ -152,6 +178,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthRoute: AuthRoute,
+  InboxRoute: InboxRoute,
   NotificationsRoute: NotificationsRoute,
   SearchRoute: SearchRoute,
   UploadRoute: UploadRoute,

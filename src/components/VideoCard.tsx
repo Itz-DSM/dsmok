@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Link } from "@tanstack/react-router";
-import { Heart, MessageCircle, Volume2, VolumeX, Play, MoreVertical, Pencil, Trash2 } from "lucide-react";
+import { Heart, MessageCircle, Volume2, VolumeX, Play, MoreVertical, Pencil, Trash2, Repeat2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth-context";
 import { toast } from "sonner";
@@ -19,7 +19,9 @@ export type FeedVideo = {
   profile: { username: string; display_name: string | null; avatar_url: string | null; verified?: boolean | null };
   likes_count: number;
   comments_count: number;
+  reposts_count: number;
   liked_by_me: boolean;
+  reposted_by_me: boolean;
 };
 
 export function VideoCard({
@@ -117,6 +119,21 @@ export function VideoCard({
     else { setShowHeart(true); setTimeout(() => setShowHeart(false), 500); }
   };
 
+  const toggleRepost = async () => {
+    if (!user) { toast.error("Sign in to repost"); return; }
+    const next = !video.reposted_by_me;
+    onChange({
+      reposted_by_me: next,
+      reposts_count: video.reposts_count + (next ? 1 : -1),
+    });
+    if (next) {
+      await supabase.from("reposts").insert({ user_id: user.id, video_id: video.id });
+      toast.success("Reposted");
+    } else {
+      await supabase.from("reposts").delete().eq("user_id", user.id).eq("video_id", video.id);
+    }
+  };
+
   return (
     <div className="relative h-[100dvh] w-full snap-start snap-always bg-black">
       <video
@@ -206,7 +223,7 @@ export function VideoCard({
           className="inline-flex items-center gap-1 text-base font-bold drop-shadow"
         >
           @{video.profile.username}
-          <VerifiedBadge verified={video.profile.verified} />
+          <VerifiedBadge verified={video.profile.verified} owner={video.profile.username.toLowerCase() === "itzdsm"} />
         </Link>
         {video.caption && (
           <p className="mt-1 line-clamp-3 max-w-[80%] text-sm leading-snug drop-shadow">
@@ -240,6 +257,11 @@ export function VideoCard({
         <button onClick={() => setCommentsOpen(true)} className="flex flex-col items-center gap-1 text-white">
           <MessageCircle className="h-9 w-9 drop-shadow" />
           <span className="text-xs font-semibold drop-shadow">{video.comments_count}</span>
+        </button>
+
+        <button onClick={toggleRepost} className="flex flex-col items-center gap-1 text-white">
+          <Repeat2 className={`h-9 w-9 drop-shadow ${video.reposted_by_me ? "text-secondary" : "text-white"}`} />
+          <span className="text-xs font-semibold drop-shadow">{video.reposts_count}</span>
         </button>
 
         <button onClick={onToggleMute} className="text-white">

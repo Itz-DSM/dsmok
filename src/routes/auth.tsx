@@ -2,7 +2,8 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
-
+import { useServerFn } from "@tanstack/react-start";
+import { createGuestAccount } from "@/lib/guest.functions";
 import { useAuth } from "@/lib/auth-context";
 import { markGuestSessionStart } from "@/lib/guest";
 import { Button } from "@/components/ui/button";
@@ -22,30 +23,17 @@ function AuthPage() {
   const [password, setPassword] = useState("");
   const [username, setUsername] = useState("");
   const [busy, setBusy] = useState(false);
+  const provisionGuest = useServerFn(createGuestAccount);
 
   const signInAsGuest = async () => {
     setBusy(true);
     try {
-      const stamp = Date.now();
-      const guestEmail = `guest_${stamp}@guest.dsmok.local`;
-      const guestPassword = `Guest!${stamp}aA`;
-      const guestUsername = `guest${String(stamp).slice(-6)}`;
-
-      const { error } = await supabase.auth.signUp({
-        email: guestEmail,
-        password: guestPassword,
-        options: {
-          data: { username: guestUsername, display_name: "Guest" },
-        },
-      });
-      if (error) throw error;
-
+      const { email: guestEmail, password: guestPassword } = await provisionGuest();
       const { error: loginError } = await supabase.auth.signInWithPassword({
         email: guestEmail,
         password: guestPassword,
       });
       if (loginError) throw loginError;
-
       markGuestSessionStart();
       toast.success("Guest session started for 30 minutes.");
     } catch (err: any) {

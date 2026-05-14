@@ -33,21 +33,28 @@ function Index() {
       const ids = list.map((v) => v.id);
 
       let likedSet = new Set<string>();
+      let repostedSet = new Set<string>();
       if (user && ids.length) {
-        const { data: liked } = await supabase.from("likes").select("video_id").eq("user_id", user.id).in("video_id", ids);
+        const [{ data: liked }, { data: rep }] = await Promise.all([
+          supabase.from("likes").select("video_id").eq("user_id", user.id).in("video_id", ids),
+          supabase.from("reposts").select("video_id").eq("user_id", user.id).in("video_id", ids),
+        ]);
         likedSet = new Set((liked || []).map((l: any) => l.video_id));
+        repostedSet = new Set((rep || []).map((l: any) => l.video_id));
       }
 
       // counts
-      const counts: Record<string, { likes: number; comments: number }> = {};
+      const counts: Record<string, { likes: number; comments: number; reposts: number }> = {};
       if (ids.length) {
-        const [{ data: lc }, { data: cc }] = await Promise.all([
+        const [{ data: lc }, { data: cc }, { data: rc }] = await Promise.all([
           supabase.from("likes").select("video_id").in("video_id", ids),
           supabase.from("comments").select("video_id").in("video_id", ids),
+          supabase.from("reposts").select("video_id").in("video_id", ids),
         ]);
-        ids.forEach((id) => (counts[id] = { likes: 0, comments: 0 }));
+        ids.forEach((id) => (counts[id] = { likes: 0, comments: 0, reposts: 0 }));
         (lc || []).forEach((r: any) => counts[r.video_id].likes++);
         (cc || []).forEach((r: any) => counts[r.video_id].comments++);
+        (rc || []).forEach((r: any) => counts[r.video_id].reposts++);
       }
 
       setVideos(
@@ -61,7 +68,9 @@ function Index() {
           profile: v.profiles,
           likes_count: counts[v.id]?.likes ?? 0,
           comments_count: counts[v.id]?.comments ?? 0,
+          reposts_count: counts[v.id]?.reposts ?? 0,
           liked_by_me: likedSet.has(v.id),
+          reposted_by_me: repostedSet.has(v.id),
         }))
       );
       setLoading(false);

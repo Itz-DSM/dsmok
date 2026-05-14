@@ -1,6 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
-import { LogOut, Settings, Camera, BadgeCheck } from "lucide-react";
+import { LogOut, Settings, Camera, BadgeCheck, MessageCircle } from "lucide-react";
+import { DirectMessageSheet } from "@/components/DirectMessageSheet";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth-context";
 import { Button } from "@/components/ui/button";
@@ -32,6 +33,8 @@ function ProfilePage() {
   const navigate = useNavigate();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [videos, setVideos] = useState<{ id: string; video_url: string; thumbnail_url: string | null }[]>([]);
+  const [reposts, setReposts] = useState<{ id: string; video_url: string; thumbnail_url: string | null }[]>([]);
+  const [tab, setTab] = useState<"posts" | "reposts">("posts");
   const [followers, setFollowers] = useState(0);
   const [following, setFollowing] = useState(0);
   const [isFollowing, setIsFollowing] = useState(false);
@@ -40,6 +43,7 @@ function ProfilePage() {
   const [bio, setBio] = useState("");
   const [displayName, setDisplayName] = useState("");
   const fileRef = useRef<HTMLInputElement>(null);
+  const [dmOpen, setDmOpen] = useState(false);
 
   const isMe = meProfile?.username === username;
 
@@ -51,12 +55,14 @@ function ProfilePage() {
       setProfile(p as Profile);
       setBio(p.bio ?? "");
       setDisplayName(p.display_name ?? "");
-      const [{ data: vids }, { data: fers }, { data: fing }] = await Promise.all([
+      const [{ data: vids }, { data: fers }, { data: fing }, { data: rep }] = await Promise.all([
         supabase.from("videos").select("id, video_url, thumbnail_url").eq("user_id", p.id).order("created_at", { ascending: false }),
         supabase.from("follows").select("follower_id").eq("following_id", p.id),
         supabase.from("follows").select("following_id").eq("follower_id", p.id),
+        supabase.from("reposts").select("created_at, videos(id, video_url, thumbnail_url)").eq("user_id", p.id).order("created_at", { ascending: false }),
       ]);
       setVideos((vids as any) || []);
+      setReposts(((rep as any) || []).map((r: any) => r.videos).filter(Boolean));
       setFollowers(fers?.length || 0);
       setFollowing(fing?.length || 0);
       if (user) {
@@ -148,23 +154,24 @@ function ProfilePage() {
       <div className="mt-4">
         <h1 className="flex items-center gap-1.5 text-xl font-bold">
           {profile.display_name || profile.username}
-          <VerifiedBadge verified={profile.verified} className="h-5 w-5" />
+          <VerifiedBadge verified={profile.verified} owner={profile.username.toLowerCase() === "itzdsm"} className="h-5 w-5" />
         </h1>
         <p className="text-sm text-muted-foreground">@{profile.username}</p>
-        {profile.bio && !editing && <p className="mt-2 text-sm">{profile.bio}</p>}
-        {meProfile?.username?.toLowerCase() === "itzdsm" && !isMe && (
+        {profile.bio && !editing && <p className="mt-2 whitespace-pre-wrap text-sm">{profile.bio}</p>}
+        {meProfile?.username?.toLowerCase() === "itzdsm" && (
           <button
             onClick={async () => {
               const next = !profile.verified;
               const { error } = await supabase.from("profiles").update({ verified: next }).eq("id", profile.id);
               if (error) { toast.error(error.message); return; }
               setProfile((p) => p ? { ...p, verified: next } : p);
-              toast.success(next ? "User verified" : "Verification removed");
+              if (isMe) await refreshProfile();
+              toast.success(next ? "Verified" : "Verification removed");
             }}
             className="mt-3 inline-flex items-center gap-1.5 rounded-full border border-primary/40 bg-primary/10 px-3 py-1.5 text-xs font-semibold text-primary hover:bg-primary/20"
           >
             <BadgeCheck className="h-4 w-4" />
-            {profile.verified ? "Remove verification" : "Verify this user"}
+            {profile.verified ? "Remove verification" : isMe ? "Verify yourself" : "Verify this user"}
           </button>
         )}
       </div>
@@ -176,10 +183,21 @@ function ProfilePage() {
       </div>
 
       {!isMe && user && (
-        <Button onClick={toggleFollow} className={`mt-4 w-full ${isFollowing ? "" : "bg-gradient-brand text-primary-foreground hover:opacity-90"}`} variant={isFollowing ? "outline" : "default"}>
-          {isFollowing ? "Following" : "Follow"}
-        </Button>
+        <div className="mt-4 flex gap-2">
+          <Button onClick={toggleFollow} className={`flex-1 ${isFollowing ? "" : "bg-gradient-brand text-primary-foreground hover:opacity-90"}`} variant={isFollowing ? "outline" : "default"}>
+            {isFollowing ? "Following" : "Follow"}
+          </Button>
+          <Button onClick={() => setDmOpen(true)} variant="outline" className="flex-1">
+            <MessageCircle className="mr-1.5 h-4 w-4" /> Message
+          </Button>
+        </div>
       )}
+
+      <DirectMessageSheet
+        open={dmOpen}
+        onClose={() => setDmOpen(false)}
+        target={profile ? { id: profile.id, username: profile.username, avatar_url: profile.avatar_url } : null}
+      />
 
       {editing && isMe && (
         <div className="mt-4 space-y-3 rounded-xl border border-border bg-card p-4">
@@ -195,13 +213,32 @@ function ProfilePage() {
         </div>
       )}
 
-      <div className="mt-6 grid grid-cols-3 gap-1">
-        {videos.map((v) => (
+      <div className="mt-6 flex border-b border-border">
+        <button
+          onClick={() => setTab("posts")}
+          className={`flex-1 py-2 text-sm font-semibold ${tab === "posts" ? "border-b-2 border-primary text-foreground" : "text-muted-foreground"}`}
+        >
+          Posts ({videos.length})
+        </button>
+        <button
+          onClick={() => setTab("reposts")}
+          className={`flex-1 py-2 text-sm font-semibold ${tab === "reposts" ? "border-b-2 border-primary text-foreground" : "text-muted-foreground"}`}
+        >
+          Reposts ({reposts.length})
+        </button>
+      </div>
+
+      <div className="mt-2 grid grid-cols-3 gap-1">
+        {(tab === "posts" ? videos : reposts).map((v) => (
           <Link key={v.id} to="/" className="group relative aspect-[3/4] overflow-hidden rounded-md bg-muted">
             <video src={v.video_url} poster={v.thumbnail_url ?? undefined} className="h-full w-full object-cover" muted preload="metadata" />
           </Link>
         ))}
-        {videos.length === 0 && <p className="col-span-3 py-10 text-center text-sm text-muted-foreground">No videos yet.</p>}
+        {(tab === "posts" ? videos : reposts).length === 0 && (
+          <p className="col-span-3 py-10 text-center text-sm text-muted-foreground">
+            {tab === "posts" ? "No videos yet." : "No reposts yet."}
+          </p>
+        )}
       </div>
     </div>
   );
