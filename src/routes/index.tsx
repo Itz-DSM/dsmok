@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth-context";
 import { VideoCard, type FeedVideo } from "@/components/VideoCard";
+import { LiveBanner } from "@/components/LiveBanner";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -122,6 +123,7 @@ function Index() {
 
   return (
     <>
+      <LiveBanner />
       <div className="pointer-events-none absolute left-0 right-0 top-0 z-30 flex items-center justify-center pt-4">
         <span className="text-2xl font-black text-gradient-brand drop-shadow">Dsmok</span>
       </div>

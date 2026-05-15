@@ -99,3 +99,10 @@
   100% { transform: scale(1); opacity: 1; }
 }
 .animate-pop { animation: pop 0.4s ease-out; }
+
+@keyframes heart-rise {
+  0% { transform: translateY(0) scale(0.6); opacity: 0; }
+  20% { transform: translateY(-30px) scale(1.2); opacity: 1; }
+  100% { transform: translateY(-260px) scale(0.9) rotate(-15deg); opacity: 0; }
+}
+.animate-heart-rise { animation: heart-rise 2.2s ease-out forwards; }

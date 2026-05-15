@@ -168,6 +168,97 @@ export type Database = {
           },
         ]
       }
+      live_chat: {
+        Row: {
+          created_at: string
+          id: string
+          stream_id: string
+          text: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          stream_id: string
+          text: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          stream_id?: string
+          text?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "live_chat_stream_id_fkey"
+            columns: ["stream_id"]
+            isOneToOne: false
+            referencedRelation: "live_streams"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      live_likes: {
+        Row: {
+          created_at: string
+          id: string
+          stream_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          stream_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          stream_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "live_likes_stream_id_fkey"
+            columns: ["stream_id"]
+            isOneToOne: false
+            referencedRelation: "live_streams"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      live_streams: {
+        Row: {
+          ended_at: string | null
+          host_id: string
+          id: string
+          started_at: string
+          status: string
+          title: string
+          viewer_count: number
+        }
+        Insert: {
+          ended_at?: string | null
+          host_id: string
+          id?: string
+          started_at?: string
+          status?: string
+          title?: string
+          viewer_count?: number
+        }
+        Update: {
+          ended_at?: string | null
+          host_id?: string
+          id?: string
+          started_at?: string
+          status?: string
+          title?: string
+          viewer_count?: number
+        }
+        Relationships: []
+      }
       messages: {
         Row: {
           conversation_id: string

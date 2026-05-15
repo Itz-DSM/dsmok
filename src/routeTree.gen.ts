@@ -16,6 +16,8 @@ import { Route as InboxRouteImport } from './routes/inbox'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as UUsernameRouteImport } from './routes/u.$username'
+import { Route as LiveNewRouteImport } from './routes/live.new'
+import { Route as LiveStreamIdRouteImport } from './routes/live.$streamId'
 
 const UploadRoute = UploadRouteImport.update({
   id: '/upload',
@@ -52,6 +54,16 @@ const UUsernameRoute = UUsernameRouteImport.update({
   path: '/u/$username',
   getParentRoute: () => rootRouteImport,
 } as any)
+const LiveNewRoute = LiveNewRouteImport.update({
+  id: '/live/new',
+  path: '/live/new',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LiveStreamIdRoute = LiveStreamIdRouteImport.update({
+  id: '/live/$streamId',
+  path: '/live/$streamId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -60,6 +72,8 @@ export interface FileRoutesByFullPath {
   '/notifications': typeof NotificationsRoute
   '/search': typeof SearchRoute
   '/upload': typeof UploadRoute
+  '/live/$streamId': typeof LiveStreamIdRoute
+  '/live/new': typeof LiveNewRoute
   '/u/$username': typeof UUsernameRoute
 }
 export interface FileRoutesByTo {
@@ -69,6 +83,8 @@ export interface FileRoutesByTo {
   '/notifications': typeof NotificationsRoute
   '/search': typeof SearchRoute
   '/upload': typeof UploadRoute
+  '/live/$streamId': typeof LiveStreamIdRoute
+  '/live/new': typeof LiveNewRoute
   '/u/$username': typeof UUsernameRoute
 }
 export interface FileRoutesById {
@@ -79,6 +95,8 @@ export interface FileRoutesById {
   '/notifications': typeof NotificationsRoute
   '/search': typeof SearchRoute
   '/upload': typeof UploadRoute
+  '/live/$streamId': typeof LiveStreamIdRoute
+  '/live/new': typeof LiveNewRoute
   '/u/$username': typeof UUsernameRoute
 }
 export interface FileRouteTypes {
@@ -90,6 +108,8 @@ export interface FileRouteTypes {
     | '/notifications'
     | '/search'
     | '/upload'
+    | '/live/$streamId'
+    | '/live/new'
     | '/u/$username'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -99,6 +119,8 @@ export interface FileRouteTypes {
     | '/notifications'
     | '/search'
     | '/upload'
+    | '/live/$streamId'
+    | '/live/new'
     | '/u/$username'
   id:
     | '__root__'
@@ -108,6 +130,8 @@ export interface FileRouteTypes {
     | '/notifications'
     | '/search'
     | '/upload'
+    | '/live/$streamId'
+    | '/live/new'
     | '/u/$username'
   fileRoutesById: FileRoutesById
 }
@@ -118,6 +142,8 @@ export interface RootRouteChildren {
   NotificationsRoute: typeof NotificationsRoute
   SearchRoute: typeof SearchRoute
   UploadRoute: typeof UploadRoute
+  LiveStreamIdRoute: typeof LiveStreamIdRoute
+  LiveNewRoute: typeof LiveNewRoute
   UUsernameRoute: typeof UUsernameRoute
 }
 
@@ -172,6 +198,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof UUsernameRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/live/new': {
+      id: '/live/new'
+      path: '/live/new'
+      fullPath: '/live/new'
+      preLoaderRoute: typeof LiveNewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/live/$streamId': {
+      id: '/live/$streamId'
+      path: '/live/$streamId'
+      fullPath: '/live/$streamId'
+      preLoaderRoute: typeof LiveStreamIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -182,6 +222,8 @@ const rootRouteChildren: RootRouteChildren = {
   NotificationsRoute: NotificationsRoute,
   SearchRoute: SearchRoute,
   UploadRoute: UploadRoute,
+  LiveStreamIdRoute: LiveStreamIdRoute,
+  LiveNewRoute: LiveNewRoute,
   UUsernameRoute: UUsernameRoute,
 }
 export const routeTree = rootRouteImport
