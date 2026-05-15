@@ -141,7 +141,7 @@ export function DirectMessageSheet({
     <div className="fixed inset-0 z-50 flex items-end" onClick={onClose}>
       <div className="absolute inset-0 bg-black/60" />
       <div
-        className="relative flex h-[80dvh] w-full flex-col rounded-t-2xl border-t border-border bg-card p-4 shadow-2xl"
+        className="relative flex h-[80dvh] w-full flex-col rounded-t-2xl border-t border-border bg-card p-4 pb-[calc(5rem+env(safe-area-inset-bottom))] shadow-2xl"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="mb-3 flex items-center justify-between">
