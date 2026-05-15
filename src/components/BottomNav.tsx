@@ -1,5 +1,5 @@
 import { Link, useLocation } from "@tanstack/react-router";
-import { Home, Search, PlusSquare, User, Bell } from "lucide-react";
+import { Home, Search, PlusSquare, User, Bell, Radio } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useAuth } from "@/lib/auth-context";
 import { supabase } from "@/integrations/supabase/client";
@@ -41,6 +41,7 @@ export function BottomNav() {
     { to: "/", icon: Home, label: "Home" },
     { to: "/search", icon: Search, label: "Search" },
     { to: "/upload", icon: PlusSquare, label: "Create", highlight: true },
+    { to: "/live/new", icon: Radio, label: "Live" },
     { to: "/notifications", icon: Bell, label: "Inbox", badge: unread },
     { to: profile ? `/u/${profile.username}` : "/auth", icon: User, label: "Profile" },
   ];
