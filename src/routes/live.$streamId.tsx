@@ -25,6 +25,11 @@ function WatchLive() {
 
   useEffect(() => {
     let cancelled = false;
+    let pc: RTCPeerConnection | null = null;
+    let mainChannel: ReturnType<typeof supabase.channel> | null = null;
+    let statusChannel: ReturnType<typeof supabase.channel> | null = null;
+    const viewerId = viewerIdRef.current;
+
     (async () => {
       const { data: stream } = await supabase
         .from("live_streams")
@@ -36,12 +41,10 @@ function WatchLive() {
       setHost((stream as any).profiles ?? null);
       if (stream.status !== "live") { setStatus("ended"); return; }
 
-      const channel = supabase.channel(channelName(streamId), { config: { broadcast: { self: false } } });
-      const viewerId = viewerIdRef.current;
+      mainChannel = supabase.channel(channelName(streamId), { config: { broadcast: { self: false } } });
+      const sendSignal = (msg: SignalMessage) => mainChannel!.send({ type: "broadcast", event: "signal", payload: msg });
 
-      const sendSignal = (msg: SignalMessage) => channel.send({ type: "broadcast", event: "signal", payload: msg });
-
-      const pc = new RTCPeerConnection({ iceServers: ICE_SERVERS });
+      pc = new RTCPeerConnection({ iceServers: ICE_SERVERS });
       pcRef.current = pc;
 
       pc.ontrack = (e) => {
@@ -55,13 +58,13 @@ function WatchLive() {
         if (e.candidate) sendSignal({ type: "ice", viewerId, from: "viewer", candidate: e.candidate.toJSON() });
       };
       pc.onconnectionstatechange = () => {
-        if (["failed", "disconnected"].includes(pc.connectionState)) toast.error("Connection lost");
+        if (pc && ["failed", "disconnected"].includes(pc.connectionState)) toast.error("Connection lost");
       };
 
-      channel
+      mainChannel
         .on("broadcast", { event: "signal" }, async ({ payload }) => {
           const msg = payload as SignalMessage;
-          if (msg.viewerId !== viewerId) return;
+          if (msg.viewerId !== viewerId || !pc || pc.signalingState === "closed") return;
           if (msg.type === "offer") {
             await pc.setRemoteDescription(msg.sdp);
             const answer = await pc.createAnswer();
@@ -75,32 +78,27 @@ function WatchLive() {
           if (s === "SUBSCRIBED") sendSignal({ type: "join", viewerId });
         });
 
-      // Listen for stream end
-      const liveChan = supabase
+      statusChannel = supabase
         .channel(`live-status-${streamId}`)
         .on(
           "postgres_changes",
           { event: "UPDATE", schema: "public", table: "live_streams", filter: `id=eq.${streamId}` },
-          (p) => {
-            if ((p.new as any).status === "ended") setStatus("ended");
-          }
+          (p) => { if ((p.new as any).status === "ended") setStatus("ended"); }
         )
         .subscribe();
-
-      return () => {
-        sendSignal({ type: "leave", viewerId });
-        supabase.removeChannel(channel);
-        supabase.removeChannel(liveChan);
-        pc.close();
-      };
-    })().then((cleanup) => { if (cancelled && cleanup) cleanup(); });
+    })();
 
     return () => {
       cancelled = true;
-      pcRef.current?.close();
+      if (mainChannel) {
+        mainChannel.send({ type: "broadcast", event: "signal", payload: { type: "leave", viewerId } });
+        supabase.removeChannel(mainChannel);
+      }
+      if (statusChannel) supabase.removeChannel(statusChannel);
+      if (pc) pc.close();
       pcRef.current = null;
     };
-  }, [streamId, user?.id]);
+  }, [streamId]);
 
   return (
     <div className="relative min-h-[100dvh] bg-black text-white">
